@@ -38,6 +38,10 @@ function Icon({ name, size = 18, stroke = 2, style, className }) {
     copy: "M9 9h11v11H9zM5 15H4V4h11v1",
     download: "M12 4v11M7 11l5 4 5-4M5 20h14",
     target: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 16a4 4 0 100-8 4 4 0 000 8zM12 12a0 0 0 100 .01",
+    trash: "M5 7h14M10 7V5h4v2M6 7l1 13h10l1-13M10 11v5M14 11v5",
+    info: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v5M12 7.5v.01",
+    chevron: "M9 6l6 6-6 6",
+    switch: "M4 8h13l-3-3M20 16H7l3 3",
   };
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none"

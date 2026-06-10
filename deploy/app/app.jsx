@@ -18,13 +18,14 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "displayNumbers": true
 } /*EDITMODE-END*/;
 
-function App() {
+function App({ profile, onSwitch }) {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [nav, setNav] = useState("dash");
   const [pipeView, setPipeView] = useState("board"); // board | list | timeline
+  const JOBS_KEY = window.Profiles.jobsKey(profile);
   const [jobs, setJobs] = useState(() => {
-    try {const s = localStorage.getItem("toudi_jobs_v1");if (s) return JSON.parse(s);} catch (e) {}
-    return window.APP_DATA.JOBS;
+    try {const s = localStorage.getItem(JOBS_KEY);if (s) return JSON.parse(s);} catch (e) {}
+    return [];
   });
   const [sel, setSel] = useState(null);
   const [adding, setAdding] = useState(false);
@@ -53,9 +54,9 @@ function App() {
     r.style.setProperty("--num-font", t.displayNumbers ? "'Space Grotesk', monospace" : "inherit");
   }, [t]);
 
-  // 数据持久化(编辑/备注/阶段变更都会保存,刷新不丢)
+  // 数据持久化(按档案分开存储,编辑/备注/阶段变更都会保存,刷新不丢)
   useEffect(() => {
-    try {localStorage.setItem("toudi_jobs_v1", JSON.stringify(jobs));} catch (e) {}
+    try {localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));} catch (e) {}
   }, [jobs]);
 
   const filtered = useMemo(() => {
@@ -122,7 +123,11 @@ function App() {
         </div>
         <button className="side-add" onClick={() => setAdding(true)}><Icon name="plus" size={17} stroke={2.4} />添加岗位</button>
         <div className="side-foot">
-          <div className="userchip"><div className="userav" style={{ fontFamily: "Helvetica" }}>刘</div><div><div className="user-n">刘同学</div><div className="user-s mono">{jobs.length} 个岗位跟进中</div></div></div>
+          <div className="userchip">
+            <div className="userav" style={{ fontFamily: "Helvetica" }}>{profile.slice(0, 1)}</div>
+            <div className="userchip-tx"><div className="user-n">{profile}</div><div className="user-s mono">{jobs.length} 个岗位跟进中</div></div>
+            <button className="switch-btn" onClick={onSwitch} title="切换 / 管理档案"><Icon name="switch" size={16} /></button>
+          </div>
         </div>
       </nav>
 
@@ -186,4 +191,24 @@ function App() {
 
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+// ===== 根组件:先选档案,再进入应用 =====
+function Root() {
+  const [profile, setProfile] = useState(() => {
+    const cur = window.Profiles.getCurrentProfile();
+    // 当前档案必须仍存在于档案列表中
+    if (cur && window.Profiles.loadProfiles().some((p) => p.name === cur)) return cur;
+    return "";
+  });
+
+  if (!profile) {
+    return <window.Profiles.ProfileGate onPick={(p) => setProfile(p)} />;
+  }
+  return (
+    <App
+      key={profile}
+      profile={profile}
+      onSwitch={() => {window.Profiles.setCurrentProfile("");setProfile("");}} />
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Root />);

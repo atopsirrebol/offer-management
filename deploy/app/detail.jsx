@@ -110,7 +110,7 @@ function JobDetail({ job, onClose, onAdvance, onUpdate, onDelete }) {
           </div>
         </div>
 
-        <div className="drawer-scroll" style={{ width: "7px", height: "700px" }}>
+        <div className="drawer-scroll" style={{ width: "700px", height: "700px" }}>
           <div className="dh">
             <Logo company={job.company} size={52} radius={14} />
             <div className="dh-txt">
